@@ -1,50 +1,9 @@
 function createCard(card_data)
 {
-	var card_data = {
-		"title": "Card 4KK65",
-		"id": "45",
-		"step": {
-			"title": "planejamento",
-			"id": 2000
-		},
-		"color": "#00ffff",
-		"description": "QFbkogOibJOeXBu",
-		"tags": [
-			{
-			"title": "ayu",
-			"color": "#ff7f50"
-			},
-			{
-			"title": "iPA9R",
-			"color": "#ff0000"
-			},
-			{
-			"title": "C8Wn",
-			"color": "#00ff00"
-			}
-		],
-		"checklist": {
-			"title": "Checklist UMwQT",
-			"items": [
-			{
-				"done": false,
-				"title": "Checklist item hheLb"
-			},
-			{
-				"done": true,
-				"title": "Checklist item Io23v"
-			},
-			{
-				"done": false,
-				"title": "Checklist item NaWcF"
-			},
-			{
-				"done": false,
-				"title": "Checklist item 1BjgY"
-			}
-			]
-		}
-	};
+	if(!card_data || !card_data.step || !card_data.step.id)
+	{
+		return
+	}
 
 	var step = card_data.step;
 	var step_selector = `[data-step-type=container][data-step-id="${step.id}"]`;
@@ -54,6 +13,16 @@ function createCard(card_data)
 	{
 		console.log("Não foi possível encontrar a coluna de destino");
 		return;
+	}
+
+	var tags = card_data.tags;
+	var tags_html = '';
+	if(tags.length > 0)
+	{
+		tags.forEach(function(tag) {
+			tags_html = tags_html + `<span class="label label-midnightblue_" style="margin-right: 3px; background-color: ${tag.color};">${tag.title}</span>`
+
+		});
 	}
 
 	var checklist = card_data.checklist;
@@ -120,6 +89,7 @@ function createCard(card_data)
 		</p>
 		<div class="card-options">
 			<div class="pull-left">
+				${tags_html}
 			</div>
 			<div class="pull-right">
 				<div class="btn-group">
@@ -142,6 +112,107 @@ function createCard(card_data)
 	card_element.setAttribute('data-card-id', card_data.id);
 	card_element.innerHTML = cars_html_content;
 	target_column.appendChild(card_element);
+}
+
+
+function loadCards()
+{
+	var cards = [
+		{
+			"title": "Card 4KK65",
+			"id": "45",
+			"step": {
+				"title": "planejamento",
+				"id": 2000
+			},
+			"color": "#ff0000",
+			"description": "QFbkogOibJOeXBu",
+			"tags": [
+				{
+				"title": "ayu",
+				"color": "#ff7f50"
+				},
+				{
+				"title": "iPA9R",
+				"color": "#ff0000"
+				},
+				{
+				"title": "C8Wn",
+				"color": "#00ff00"
+				}
+			],
+			"checklist": {
+				"title": "Checklist UMwQT",
+				"items": [
+				{
+					"done": false,
+					"title": "Checklist item hheLb"
+				},
+				{
+					"done": true,
+					"title": "Checklist item Io23v"
+				},
+				{
+					"done": false,
+					"title": "Checklist item NaWcF"
+				},
+				{
+					"done": false,
+					"title": "Checklist item 1BjgY"
+				}
+				]
+			}
+		},
+		{
+			"title": "Card 4KK65",
+			"id": "45",
+			"step": {
+				"title": "planejamento",
+				"id": 2000
+			},
+			"color": "#00ffff",
+			"description": "QFbkogOibJOeXBu",
+			"tags": [
+				{
+				"title": "ayu",
+				"color": "#ff7f50"
+				},
+				{
+				"title": "iPA9R",
+				"color": "#ff0000"
+				},
+				{
+				"title": "C8Wn",
+				"color": "#00ff00"
+				}
+			],
+			"checklist": {
+				"title": "Checklist UMwQT",
+				"items": [
+				{
+					"done": false,
+					"title": "Checklist item hheLb"
+				},
+				{
+					"done": true,
+					"title": "Checklist item Io23v"
+				},
+				{
+					"done": false,
+					"title": "Checklist item NaWcF"
+				},
+				{
+					"done": false,
+					"title": "Checklist item 1BjgY"
+				}
+				]
+			}
+		}
+	];
+
+	cards.forEach(function(card_data) {
+		createCard(card_data);
+	});
 }
 
 function dropZoneToEmpties()
@@ -220,14 +291,8 @@ $( function () {
 	});
 
 	dropZoneToEmpties();
-	createCard('');
-	createCard('');
-	createCard('');
-	createCard('');
-	createCard('');
-	createCard('');
+	loadCards();
 });
-
 
 $('[data-step-type=container][data-step-name]').sortable({
 	connectWith: ".sortable-connected",
