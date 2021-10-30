@@ -117,102 +117,31 @@ function createCard(card_data)
 
 function loadCards()
 {
-	var cards = [
-		{
-			"title": "Card 4KK65",
-			"id": "45",
-			"step": {
-				"title": "planejamento",
-				"id": 2000
-			},
-			"color": "#ff0000",
-			"description": "QFbkogOibJOeXBu",
-			"tags": [
-				{
-				"title": "ayu",
-				"color": "#ff7f50"
-				},
-				{
-				"title": "iPA9R",
-				"color": "#ff0000"
-				},
-				{
-				"title": "C8Wn",
-				"color": "#00ff00"
-				}
-			],
-			"checklist": {
-				"title": "Checklist UMwQT",
-				"items": [
-				{
-					"done": false,
-					"title": "Checklist item hheLb"
-				},
-				{
-					"done": true,
-					"title": "Checklist item Io23v"
-				},
-				{
-					"done": false,
-					"title": "Checklist item NaWcF"
-				},
-				{
-					"done": false,
-					"title": "Checklist item 1BjgY"
-				}
-				]
-			}
-		},
-		{
-			"title": "Card 4KK65",
-			"id": "45",
-			"step": {
-				"title": "planejamento",
-				"id": 2000
-			},
-			"color": "#00ffff",
-			"description": "QFbkogOibJOeXBu",
-			"tags": [
-				{
-				"title": "ayu",
-				"color": "#ff7f50"
-				},
-				{
-				"title": "iPA9R",
-				"color": "#ff0000"
-				},
-				{
-				"title": "C8Wn",
-				"color": "#00ff00"
-				}
-			],
-			"checklist": {
-				"title": "Checklist UMwQT",
-				"items": [
-				{
-					"done": false,
-					"title": "Checklist item hheLb"
-				},
-				{
-					"done": true,
-					"title": "Checklist item Io23v"
-				},
-				{
-					"done": false,
-					"title": "Checklist item NaWcF"
-				},
-				{
-					"done": false,
-					"title": "Checklist item 1BjgY"
-				}
-				]
-			}
-		}
-	];
+	var _Headers = new Headers();
 
-	cards.forEach(function(card_data) {
-		createCard(card_data);
-	});
+	var _options = {
+		method: 'GET',
+		headers: _Headers,
+		mode: 'cors',
+		cache: 'default'
+	};
+
+	var _request = new Request('http://0.0.0.0:8000/api/cards', _options);
+
+	fetch(_request)
+		.then(function (response)
+		{
+			return response.json();
+		})
+		.then(function (cards)
+		{
+			cards.forEach(function(card_data) {
+				createCard(card_data);
+			});
+		}).catch(function (errors)
+		{
+			console.log(errors);
+		});
 }
 
 function dropZoneToEmpties()
