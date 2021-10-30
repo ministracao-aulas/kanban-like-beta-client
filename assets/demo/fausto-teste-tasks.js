@@ -1,3 +1,6 @@
+window.CARDS_API_PORT = window.CARDS_API_PORT || '8000';
+window.CARDS_API_BASE_URL = window.CARDS_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:${window.CARDS_API_PORT}`;
+
 function createCard(card_data)
 {
 	if(!card_data || !card_data.step || !card_data.step.id)
@@ -117,6 +120,12 @@ function createCard(card_data)
 
 function loadCards()
 {
+	if(!window.CARDS_API_BASE_URL)
+	{
+		return;
+	}
+
+	var CARDS_API_BASE_URL = window.CARDS_API_BASE_URL;
 	var _Headers = new Headers();
 
 	var _options = {
@@ -126,7 +135,7 @@ function loadCards()
 		cache: 'default'
 	};
 
-	var _request = new Request('http://0.0.0.0:8000/api/cards', _options);
+	var _request = new Request(CARDS_API_BASE_URL+'/api/cards', _options);
 
 	fetch(_request)
 		.then(function (response)
