@@ -1,3 +1,149 @@
+function createCard(card_data)
+{
+	var card_data = {
+		"title": "Card 4KK65",
+		"id": "45",
+		"step": {
+			"title": "planejamento",
+			"id": 2000
+		},
+		"color": "#00ffff",
+		"description": "QFbkogOibJOeXBu",
+		"tags": [
+			{
+			"title": "ayu",
+			"color": "#ff7f50"
+			},
+			{
+			"title": "iPA9R",
+			"color": "#ff0000"
+			},
+			{
+			"title": "C8Wn",
+			"color": "#00ff00"
+			}
+		],
+		"checklist": {
+			"title": "Checklist UMwQT",
+			"items": [
+			{
+				"done": false,
+				"title": "Checklist item hheLb"
+			},
+			{
+				"done": true,
+				"title": "Checklist item Io23v"
+			},
+			{
+				"done": false,
+				"title": "Checklist item NaWcF"
+			},
+			{
+				"done": false,
+				"title": "Checklist item 1BjgY"
+			}
+			]
+		}
+	};
+
+	var step = card_data.step;
+	var step_selector = `[data-step-type=container][data-step-id="${step.id}"]`;
+	var target_column = document.querySelector(step_selector);
+
+	if(!target_column)
+	{
+		console.log("Não foi possível encontrar a coluna de destino");
+		return;
+	}
+
+	var checklist = card_data.checklist;
+	var checklist_html = checklist.items.length > 0 ? `
+	<div class="card-checklist">
+		<div class="clearfix checklist-toggler">
+			<h4>${checklist.title}</h4>
+			<i class="fa fa-angle-left"></i>
+		</div>
+
+		<div class="checklist-container dd" id="nestable-list-7" style="display: none">
+			<ol class="dd-list">
+				<li class="checklist-item dd-item" data-id="1">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox"></div>
+						User dashboard
+					</div>
+				</li>
+				<li class="checklist-item dd-item" data-id="2">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox" checked></div>
+						User settings
+					</div>
+				</li>
+				<li class="checklist-item dd-item" data-id="3">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox"></div>
+						User profile
+					</div>
+				</li>
+				<li class="checklist-item dd-item" data-id="4">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox"></div>
+						Edit profile
+					</div>
+				</li>
+				<li class="checklist-item dd-item" data-id="5">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox"></div>
+						User uploads
+					</div>
+				</li>
+			</ol>
+
+		</div>
+	</div>
+	` : "";
+
+	var card_color = card_data.color ? card_data.color : '#a3bdb9';
+	var card_custom_progress_bar_color = `background-color: ${card_color};`;
+
+	var cars_html_content = `
+	<div class="card-handle"></div>
+		<div class="card-title">
+			<h3>${card_data.title}</h3>
+			<div class="card-done">0/5</div>
+		</div>
+		<div class="progress progress-lg">
+			<div class="progress-bar custom-progress-bar-color" style="width: 20%; ${card_custom_progress_bar_color}"></div>
+		</div>
+
+		<p class="card-desc">
+			${card_data.description}
+		</p>
+		<div class="card-options">
+			<div class="pull-left">
+			</div>
+			<div class="pull-right">
+				<div class="btn-group">
+					<a class="btn btn-default-alt btn-xs" href="#"><i
+							class="fa fa-fw fa-pencil"></i></a>
+					<a class="btn btn-default-alt btn-xs" href="#"><i class="fa fa-fw fa-times"></i></a>
+				</div>
+			</div>
+		</div>
+
+		${checklist_html}
+	`
+
+	var card_element = document.createElement('li');
+	card_element.classList.add('card-task');
+	card_element.classList.add('custom-card-color');
+	card_element.style.borderColor = card_data.color;
+	card_element.id = card_data.id;
+	card_element.setAttribute('data-step-type', 'card');
+	card_element.setAttribute('data-card-id', card_data.id);
+	card_element.innerHTML = cars_html_content;
+	target_column.appendChild(card_element);
+}
+
 function dropZoneToEmpties()
 {
 	var lists = $('.sortable-connected');
@@ -45,24 +191,6 @@ $('#nestable-list-3').nestable({group: 3});
 // $('#nestable-list-8').nestable({group: 8});
 // $('#nestable-list-9').nestable({group: 9});
 
-$('[data-step-type=container][data-step-name]').sortable({
-	connectWith: ".sortable-connected",
-	receive: function (event, ui) {
-		dropZoneToEmpties();
-
-        var card = ui.item.context;
-        var origem = ui.sender.context;
-        var destino = this;
-
-        if(card, origem, destino)
-            proccessMoveCard(card, origem, destino);
-	},
-	remove: function (event, ui) {
-		dropZoneToEmpties();
-        console.log('remove');
-	}
-});
-
 
 $( function () {
 
@@ -92,4 +220,29 @@ $( function () {
 	});
 
 	dropZoneToEmpties();
+	createCard('');
+	createCard('');
+	createCard('');
+	createCard('');
+	createCard('');
+	createCard('');
+});
+
+
+$('[data-step-type=container][data-step-name]').sortable({
+	connectWith: ".sortable-connected",
+	receive: function (event, ui) {
+		dropZoneToEmpties();
+
+        var card = ui.item.context;
+        var origem = ui.sender.context;
+        var destino = this;
+
+        if(card, origem, destino)
+            proccessMoveCard(card, origem, destino);
+	},
+	remove: function (event, ui) {
+		dropZoneToEmpties();
+        console.log('remove');
+	}
 });
