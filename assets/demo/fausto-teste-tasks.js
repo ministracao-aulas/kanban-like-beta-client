@@ -1,3 +1,11 @@
+function dropZoneToEmpties()
+{
+	var lists = $('.sortable-connected');
+	for (var i = lists.length - 1; i >= 0; i--) {
+		if ($(lists[i]).children().length < 1) $(lists[i]).html('');
+	};
+}
+
 function proccessMoveCard(card, origem, destino)
 {
     var card_data_set = card.dataset;
@@ -37,33 +45,10 @@ $('#nestable-list-3').nestable({group: 3});
 // $('#nestable-list-8').nestable({group: 8});
 // $('#nestable-list-9').nestable({group: 9});
 
-
-//ID of Cards UL
-// $('#sortable-tasks-1, #sortable-tasks-2, #sortable-tasks-3, #sortable-tasks-4, #sortable-tasks-5, #sortable-tasks-6, #sortable-tasks-7, #sortable-tasks-8, #sortable-tasks-9').sortable({
-// 	connectWith: ".sortable-connected",
-// 	receive: function (event, ui) {
-// 		var lists = $('.sortable-connected');
-// 		for (var i = lists.length - 1; i >= 0; i--) {
-// 			//esta linha executa se nao tiver nenhum card na coluna para colocar uma coluna vazia
-// 			if ($(lists[i]).children().length < 1) $(lists[i]).html('');
-// 			document.getElementById('teste').innerHTML = document.getElementById('teste').innerHTML + i;
-// 		};
-// 	}
-// });
-
 $('[data-step-type=container][data-step-name]').sortable({
 	connectWith: ".sortable-connected",
 	receive: function (event, ui) {
-		var lists = $('.sortable-connected');
-		for (var i = lists.length - 1; i >= 0; i--) {
-			//esta linha executa se nao tiver nenhum card na coluna para colocar uma coluna vazia
-			if ($(lists[i]).children().length < 1) $(lists[i]).html('');
-			document.getElementById('teste').innerHTML = 'de ' + i + ' para 3';
-			// document.getElementById('teste').innerHTML = document.getElementById('teste').innerHTML + i;
-		};
-        //event.target.sortable( "cancel" );
-        //TODO
-        console.log('receive', ui, event);
+		dropZoneToEmpties();
 
         var card = ui.item.context;
         var origem = ui.sender.context;
@@ -73,16 +58,11 @@ $('[data-step-type=container][data-step-name]').sortable({
             proccessMoveCard(card, origem, destino);
 	},
 	remove: function (event, ui) {
-		var lists = $('.sortable-connected');
-		for (var i = lists.length - 1; i >= 0; i--) {
-			//esta linha executa se nao tiver nenhum card na coluna para colocar uma coluna vazia
-			if ($(lists[i]).children().length < 1) $(lists[i]).html('');
-			document.getElementById('teste').innerHTML = 'de ' + i + ' para 3';
-			// document.getElementById('teste').innerHTML = document.getElementById('teste').innerHTML + i;
-		};
+		dropZoneToEmpties();
         console.log('remove');
 	}
 });
+
 
 $( function () {
 
@@ -111,4 +91,5 @@ $( function () {
 		}
 	});
 
+	dropZoneToEmpties();
 });
