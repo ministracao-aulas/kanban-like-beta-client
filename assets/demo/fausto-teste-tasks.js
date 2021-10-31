@@ -18,7 +18,7 @@ function easyFilter(obj, key, must_be)
 
 function createCard(card_data)
 {
-	if(!card_data || !card_data.step || !card_data.step.id)
+	if(!card_data || !card_data.id || !card_data.step || !card_data.step.id)
 	{
 		return
 	}
@@ -52,13 +52,12 @@ function createCard(card_data)
 	if(checklist_total > 0)
 	{
 		var checklist_items = '';
-
-		checklist_items = '';
+		var checklist_prefix = card_data.id+'-chklst';
 		checklist.items.forEach(function(item, key) {
-			var checked = item.checked ? 'checked' : '';
+			var checked = item.done ? 'checked' : '';
 
 			checklist_items = checklist_items + `
-				<li class="checklist-item dd-item" data-id="${key}">
+				<li class="checklist-item dd-item" data-id="${checklist_prefix}-${key+1}">
 					<div class="dd-handle">
 						<div class="checkbox-inline icheck"><input type="checkbox" ${checked}></div>
 						${item.title}
@@ -74,7 +73,7 @@ function createCard(card_data)
 					<i class="fa fa-angle-left"></i>
 				</div>
 
-				<div class="checklist-container dd" id="nestable-list-7" style="display: none">
+				<div class="checklist-container dd" id="nestable-list-${card_data.id}" style="display: none">
 					<ol class="dd-list">
 						${checklist_items}
 					</ol>
@@ -156,12 +155,14 @@ function loadICheckListeners()
 		$(this).closest('.card-task').find('.progress-bar').css("width", (checked/total)*100+'%');
 	});
 
-	$('.card-task').each( function () {
-		var total = $(this).find('.checkbox-inline input').length;
-		var checked = $(this).find('.checkbox-inline input:checked').length;
-		$(this).find('.card-done').html(checked+'/'+total);
-		$(this).find('.progress-bar').css("width", (checked/total)*100+'%');
+	document.querySelectorAll('.card-task').forEach(function(card) {
+		var all_inputs = card.querySelectorAll('.checkbox-inline input');
+		var total = all_inputs.length;
+		var total_checked = easyFilter(all_inputs, 'checked', true).length;
+		card.querySelector('.card-done').innerHTML = total_checked+'/'+total;
+		card.querySelector('.progress-bar').style.width = (total_checked/total)*100+'%';
 	});
+	/**/
 
 	$('.card-task .card-options .toggle-check').click( function () {
 		if ($(this).find('i').hasClass('fa-check')) {
@@ -177,6 +178,21 @@ function loadICheckListeners()
 
 function checkListTogler()
 {
+	/****
+	 * Permite os toggles dos checklists serem ordenados
+	 * https://www.jqueryscript.net/other/Mobile-Compatible-jQuery-Drag-Drop-Plugin-Nestable.html
+	 * https://github.com/dbushell/Nestable
+	 *
+	 * !! Nova versão??? https://github.com/RamonSmit/Nestable2
+	 */
+	$('.dd').nestable({ maxDepth: 1 });
+
+	$('.checklist-container.dd').on('change', function() {
+		/* on change event */
+		console.log('change checklist order', $(this).nestable('serialize'));
+
+	});
+
 	$('.checklist-toggler[has-toggler-listener=false]').click(function () {
 		if (($(this).parents('.card-checklist').children('.checklist-container').css('display'))=="none")
 		{
