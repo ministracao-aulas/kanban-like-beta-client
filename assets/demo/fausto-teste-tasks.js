@@ -1,6 +1,21 @@
 window.CARDS_API_PORT = window.CARDS_API_PORT || '8000';
 window.CARDS_API_BASE_URL = window.CARDS_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:${window.CARDS_API_PORT}`;
 
+
+function easyFilter(obj, key, must_be)
+{
+	if (!obj.length) return [];
+
+	var _filtered = [];
+	obj.forEach((item, k) => {
+		if (key in item && item[key] == must_be) {
+		_filtered.push(item);
+		}
+	});
+
+	return _filtered;
+}
+
 function createCard(card_data)
 {
 	if(!card_data || !card_data.step || !card_data.step.id)
@@ -23,68 +38,64 @@ function createCard(card_data)
 	if(tags.length > 0)
 	{
 		tags.forEach(function(tag) {
-			tags_html = tags_html + `<span class="label label-midnightblue_" style="margin-right: 3px; background-color: ${tag.color};">${tag.title}</span>`
-
+			tags_html = tags_html + `<span title="${tag.title}"
+			class="label popovers"
+			style="margin-right: 3px; background-color: ${tag.color};"
+			>${tag.title}</span>`
 		});
 	}
 
 	var checklist = card_data.checklist;
-	var checklist_html = checklist.items.length > 0 ? `
-	<div class="card-checklist">
-		<div class="clearfix checklist-toggler">
-			<h4>${checklist.title}</h4>
-			<i class="fa fa-angle-left"></i>
-		</div>
+	var checklist_html = '';
+	var checklist_total = checklist.items.length;
+	var checklist_total_done = easyFilter(checklist.items, 'done', true).length;
+	if(checklist_total > 0)
+	{
+		var checklist_items = '';
 
-		<div class="checklist-container dd" id="nestable-list-7" style="display: none">
-			<ol class="dd-list">
-				<li class="checklist-item dd-item" data-id="1">
-					<div class="dd-handle">
-						<div class="checkbox-inline icheck"><input type="checkbox"></div>
-						User dashboard
-					</div>
-				</li>
-				<li class="checklist-item dd-item" data-id="2">
-					<div class="dd-handle">
-						<div class="checkbox-inline icheck"><input type="checkbox" checked></div>
-						User settings
-					</div>
-				</li>
-				<li class="checklist-item dd-item" data-id="3">
-					<div class="dd-handle">
-						<div class="checkbox-inline icheck"><input type="checkbox"></div>
-						User profile
-					</div>
-				</li>
-				<li class="checklist-item dd-item" data-id="4">
-					<div class="dd-handle">
-						<div class="checkbox-inline icheck"><input type="checkbox"></div>
-						Edit profile
-					</div>
-				</li>
-				<li class="checklist-item dd-item" data-id="5">
-					<div class="dd-handle">
-						<div class="checkbox-inline icheck"><input type="checkbox"></div>
-						User uploads
-					</div>
-				</li>
-			</ol>
+		checklist_items = '';
+		checklist.items.forEach(function(item, key) {
+			var checked = item.checked ? 'checked' : '';
 
-		</div>
-	</div>
-	` : "";
+			checklist_items = checklist_items + `
+				<li class="checklist-item dd-item" data-id="${key}">
+					<div class="dd-handle">
+						<div class="checkbox-inline icheck"><input type="checkbox" ${checked}></div>
+						${item.title}
+					</div>
+				</li>
+			`;
+		});
+
+		checklist_html = `
+			<div class="card-checklist">
+				<div class="clearfix checklist-toggler" has-toggler-listener="false">
+					<h4>${checklist.title}</h4>
+					<i class="fa fa-angle-left"></i>
+				</div>
+
+				<div class="checklist-container dd" id="nestable-list-7" style="display: none">
+					<ol class="dd-list">
+						${checklist_items}
+					</ol>
+
+				</div>
+			</div>
+		`;
+	}
 
 	var card_color = card_data.color ? card_data.color : '#a3bdb9';
 	var card_custom_progress_bar_color = `background-color: ${card_color};`;
 
+	var percent_done = (checklist_total_done/checklist_total)*100;
 	var cars_html_content = `
 	<div class="card-handle"></div>
 		<div class="card-title">
 			<h3>${card_data.title}</h3>
-			<div class="card-done">0/5</div>
+			<div class="card-done">${checklist_total_done}/${checklist_total}</div>
 		</div>
 		<div class="progress progress-lg">
-			<div class="progress-bar custom-progress-bar-color" style="width: 20%; ${card_custom_progress_bar_color}"></div>
+			<div class="progress-bar custom-progress-bar-color" style="width: ${percent_done}%; ${card_custom_progress_bar_color}"></div>
 		</div>
 
 		<p class="card-desc">
@@ -117,6 +128,67 @@ function createCard(card_data)
 	target_column.appendChild(card_element);
 }
 
+function loadPopovers()
+{
+	$('.popovers').popover({container: 'body', trigger: 'hover', placement: 'top'}); //bootstrap's popover
+	$('.tooltips').tooltip(); //bootstrap's tooltip
+}
+
+function loadCustomCheckboxes()
+{
+	//Custom checkboxes
+    //------------------------
+	$(".bootstrap-switch").bootstrapSwitch();
+	$('.icheck input').iCheck({
+		checkboxClass: 'icheckbox_minimal-blue',
+		radioClass: 'iradio_minimal-blue'
+	});
+}
+
+function loadICheckListeners()
+{
+	//------------------------------
+
+	$('.card-task .checkbox-inline .iCheck-helper').click( function () {
+		var total = $(this).closest('.card-task').find('.checkbox-inline input').length;
+		var checked = $(this).closest('.card-task').find('.checkbox-inline input:checked').length;
+		$(this).closest('.card-task').find('.card-done').html(checked+'/'+total);
+		$(this).closest('.card-task').find('.progress-bar').css("width", (checked/total)*100+'%');
+	});
+
+	$('.card-task').each( function () {
+		var total = $(this).find('.checkbox-inline input').length;
+		var checked = $(this).find('.checkbox-inline input:checked').length;
+		$(this).find('.card-done').html(checked+'/'+total);
+		$(this).find('.progress-bar').css("width", (checked/total)*100+'%');
+	});
+
+	$('.card-task .card-options .toggle-check').click( function () {
+		if ($(this).find('i').hasClass('fa-check')) {
+			$(this).closest('.card-task').find('div.icheckbox_minimal-blue:not(.checked) .iCheck-helper').click();
+			$(this).find('i').removeClass('fa-check').addClass('fa-undo');
+		}
+		else {
+			$(this).closest('.card-task').find('div.icheckbox_minimal-blue.checked .iCheck-helper').click();
+			$(this).find('i').removeClass('fa-undo').addClass('fa-check');
+		}
+	});
+}
+
+function checkListTogler()
+{
+	$('.checklist-toggler[has-toggler-listener=false]').click(function () {
+		if (($(this).parents('.card-checklist').children('.checklist-container').css('display'))=="none")
+		{
+			$(this).parents('.card-checklist').children('.checklist-container').slideDown({duration:200});
+			$(this).children('.fa').toggleClass('fa-angle-down fa-angle-left');
+		} else {
+			$(this).parents('.card-checklist').children('.checklist-container').slideUp({duration:200});
+			$(this).children('.fa').toggleClass('fa-angle-down fa-angle-left');
+		}
+		$(this).attr('has-toggler-listener', 'true');
+	});
+}
 
 function loadCards()
 {
@@ -147,13 +219,14 @@ function loadCards()
 			cards.forEach(function(card_data) {
 				createCard(card_data);
 			});
+			callAllLoaders();
 		}).catch(function (errors)
 		{
 			console.log(errors);
 		});
 }
 
-function dropZoneToEmpties()
+function dropZoneForEmptyStepList()
 {
 	var lists = $('.sortable-connected');
 	for (var i = lists.length - 1; i >= 0; i--) {
@@ -176,16 +249,6 @@ function proccessMoveCard(card, origem, destino)
     console.log(card_id, step_id_origem, step_id_destino);
 }
 
-$('.checklist-toggler').click(function () {
-	if (($(this).parents('.card-checklist').children('.checklist-container').css('display'))=="none") {
-		$(this).parents('.card-checklist').children('.checklist-container').slideDown({duration:200});
-		$(this).children('.fa').toggleClass('fa-angle-down fa-angle-left');
-	} else {
-		$(this).parents('.card-checklist').children('.checklist-container').slideUp({duration:200});
-		$(this).children('.fa').toggleClass('fa-angle-down fa-angle-left');
-	}
-});
-
 
 //ID of list
 //Give ID to each nestable list and allow dragging between them
@@ -201,41 +264,10 @@ $('#nestable-list-3').nestable({group: 3});
 // $('#nestable-list-9').nestable({group: 9});
 
 
-$( function () {
-
-	$('.card-task .checkbox-inline .iCheck-helper').click( function () {
-		var total = $(this).closest('.card-task').find('.checkbox-inline input').length;
-		var checked = $(this).closest('.card-task').find('.checkbox-inline input:checked').length;
-		$(this).closest('.card-task').find('.card-done').html(checked+'/'+total);
-		$(this).closest('.card-task').find('.progress-bar').css("width", (checked/total)*100+'%');
-	});
-
-	$('.card-task').each( function () {
-		var total = $(this).find('.checkbox-inline input').length;
-		var checked = $(this).find('.checkbox-inline input:checked').length;
-		$(this).find('.card-done').html(checked+'/'+total);
-		$(this).find('.progress-bar').css("width", (checked/total)*100+'%');
-	});
-
-	$('.card-task .card-options .toggle-check').click( function () {
-		if ($(this).find('i').hasClass('fa-check')) {
-			$(this).closest('.card-task').find('div.icheckbox_minimal-blue:not(.checked) .iCheck-helper').click();
-			$(this).find('i').removeClass('fa-check').addClass('fa-undo');
-		}
-		else {
-			$(this).closest('.card-task').find('div.icheckbox_minimal-blue.checked .iCheck-helper').click();
-			$(this).find('i').removeClass('fa-undo').addClass('fa-check');
-		}
-	});
-
-	dropZoneToEmpties();
-	loadCards();
-});
-
 $('[data-step-type=container][data-step-name]').sortable({
 	connectWith: ".sortable-connected",
 	receive: function (event, ui) {
-		dropZoneToEmpties();
+		dropZoneForEmptyStepList();
 
         var card = ui.item.context;
         var origem = ui.sender.context;
@@ -245,7 +277,22 @@ $('[data-step-type=container][data-step-name]').sortable({
             proccessMoveCard(card, origem, destino);
 	},
 	remove: function (event, ui) {
-		dropZoneToEmpties();
+		dropZoneForEmptyStepList();
         console.log('remove');
 	}
+});
+
+function callAllLoaders()
+{
+	loadPopovers();
+	loadCustomCheckboxes();
+	loadICheckListeners();
+	dropZoneForEmptyStepList();
+	checkListTogler();
+}
+
+$( function () {
+	loadCards();
+	callAllLoaders();
+	checkListTogler();
 });
