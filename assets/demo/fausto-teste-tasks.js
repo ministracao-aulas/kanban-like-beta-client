@@ -223,7 +223,7 @@ function loadCards()
 		cache: 'default'
 	};
 
-	var _request = new Request(CARDS_API_BASE_URL+'/api/cards', _options);
+	var _request = new Request(CARDS_API_BASE_URL+'/api/fake/cards', _options);
 
 	fetch(_request)
 		.then(function (response)
